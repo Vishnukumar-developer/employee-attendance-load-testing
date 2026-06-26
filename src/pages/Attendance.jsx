@@ -3,6 +3,11 @@ import { useState } from "react";
 function Attendance() {
   const [message, setMessage] = useState("");
 
+  // Login panna employee details
+  const employee = JSON.parse(
+    localStorage.getItem("employee")
+  );
+
   const markAttendance = async () => {
     try {
       const response = await fetch(
@@ -13,10 +18,12 @@ function Attendance() {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            id: "EMP001",
-            name: "Vishnu Kumar",
-            department: "IT Infrastructure",
-            time: new Date().toISOString().slice(0, 19).replace("T", " "),
+            id: employee.emp_id,
+            name: employee.name,
+            department: employee.department,
+            time: new Date().toLocaleString("sv-SE", {
+  timeZone: "Asia/Kolkata"
+})
           }),
         }
       );
@@ -25,6 +32,8 @@ function Attendance() {
 
       if (data.success) {
         setMessage("✔ Attendance Marked Successfully");
+      } else {
+        setMessage("⚠ Failed to save attendance");
       }
     } catch (error) {
       setMessage("⚠ Failed to connect to server");
@@ -40,9 +49,17 @@ function Attendance() {
 
         <br />
 
-        <p><b>Employee ID:</b> EMP001</p>
-        <p><b>Name:</b> Vishnu Kumar</p>
-        <p><b>Department:</b> IT Infrastructure</p>
+        <p>
+          <b>Employee ID:</b> {employee.emp_id}
+        </p>
+
+        <p>
+          <b>Name:</b> {employee.name}
+        </p>
+
+        <p>
+          <b>Department:</b> {employee.department}
+        </p>
 
         <br />
 

@@ -1,4 +1,22 @@
+import { useEffect, useState } from "react";
+
 function History() {
+  const [history, setHistory] = useState([]);
+
+  useEffect(() => {
+    const employee = JSON.parse(
+      localStorage.getItem("employee")
+    );
+
+    fetch(
+      `http://localhost:5000/api/history/${employee.emp_id}`
+    )
+      .then((res) => res.json())
+      .then((data) => setHistory(data))
+      .catch((err) => console.log(err));
+
+  }, []);
+
   return (
     <div className="dashboard">
 
@@ -13,47 +31,49 @@ function History() {
             textAlign: "left"
           }}
         >
+
           <thead>
             <tr>
               <th>Date</th>
               <th>Employee ID</th>
               <th>Name</th>
-              <th>In Time</th>
-              <th>Out Time</th>
+              <th>Department</th>
+              <th>Time</th>
               <th>Status</th>
             </tr>
           </thead>
 
           <tbody>
-            <tr>
-              <td>25-06-2026</td>
-              <td>EMP001</td>
-              <td>Vishnu Kumar</td>
-              <td>08:45 AM</td>
-              <td>06:10 PM</td>
-              <td style={{ color: "green" }}>Present</td>
-            </tr>
 
-            <tr>
-              <td>24-06-2026</td>
-              <td>EMP001</td>
-              <td>Vishnu Kumar</td>
-              <td>08:50 AM</td>
-              <td>06:00 PM</td>
-              <td style={{ color: "green" }}>Present</td>
-            </tr>
+            {history.map((item) => (
+              <tr key={item.id}>
 
-            <tr>
-              <td>23-06-2026</td>
-              <td>EMP001</td>
-              <td>Vishnu Kumar</td>
-              <td>09:05 AM</td>
-              <td>--</td>
-              <td style={{ color: "red" }}>
-                Failed (DB Issue)
-              </td>
-            </tr>
-          </tbody> 
+                <td>
+                  {new Date(
+                    item.attendance_time
+                  ).toLocaleDateString()}
+                </td>
+
+                <td>{item.emp_id}</td>
+
+                <td>{item.name}</td>
+
+                <td>{item.department}</td>
+
+                <td>
+                  {new Date(
+                    item.attendance_time
+                  ).toLocaleTimeString()}
+                </td>
+
+                <td style={{ color: "green" }}>
+                  Present
+                </td>
+
+              </tr>
+            ))}
+
+          </tbody>
 
         </table>
 

@@ -2,37 +2,66 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 function Login() {
-  const [username, setUsername] = useState("");
+  const [empId, setEmpId] = useState("");
   const [password, setPassword] = useState("");
 
   const navigate = useNavigate();
 
-  const handleLogin = () => {
-    if (username === "admin" && password === "admin123") {
-
+  const handleLogin = async () => {
+    // Admin Login
+    if (empId === "admin" && password === "admin123") {
       localStorage.setItem("isLoggedIn", "true");
+      localStorage.setItem("role", "admin");
 
       navigate("/");
+      return;
+    }
 
-    } else {
+    // Employee Login
+    try {
+      const response = await fetch("http://localhost:5000/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          emp_id: empId,
+          password: password,
+        }),
+      });
 
-      alert("Invalid Username or Password");
+      const data = await response.json();
 
+      if (data.success) {
+        localStorage.setItem("isLoggedIn", "true");
+        localStorage.setItem("role", "employee");
+        localStorage.setItem(
+          "employee",
+          JSON.stringify(data.employee)
+        );
+
+        alert(`Welcome ${data.employee.name} ✅`);
+
+        navigate("/attendance");
+      } else {
+        alert("Invalid Employee ID or Password ❌");
+      }
+    } catch (error) {
+      console.error(error);
+      alert("Server Error ❌");
     }
   };
 
   return (
     <div className="login-container">
-
       <div className="login-card">
-
         <h1>🔐 Employee Attendance Portal</h1>
 
         <input
           type="text"
-          placeholder="Username"
-          value={username}
-          onChange={(e) => setUsername(e.target.value)}
+          placeholder="Employee ID / Admin"
+          value={empId}
+          onChange={(e) => setEmpId(e.target.value)}
         />
 
         <input
@@ -42,21 +71,25 @@ function Login() {
           onChange={(e) => setPassword(e.target.value)}
         />
 
-        <button
-          className="login-btn"
-          onClick={handleLogin}
-        >
+        <button className="login-btn" onClick={handleLogin}>
           Login
         </button>
 
         <p>
-          Demo Login:
+          <b>Admin Login</b>
           <br />
-          Admin → admin / admin123
+          admin / admin123
+          <br />
+          <br />
+          <b>Employee Login</b>
+          <br />
+          EMP001 / pass123
+          <br />
+          EMP002 / pass123
+          <br />
+          EMP050 / pass123
         </p>
-
       </div>
-
     </div>
   );
 }
